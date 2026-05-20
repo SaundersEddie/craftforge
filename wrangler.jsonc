@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "craftforge",
+  "compatibility_date": "2026-05-20",
+  "pages_build_output_dir": "./dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "craftforge-db",
+      "database_id": "4b30ef06-c534-404c-9ff1-ad96002a8e52"
+    }
+  ]
+}
