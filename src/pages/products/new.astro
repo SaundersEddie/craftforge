@@ -1,0 +1,151 @@
+---
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>New Product | CraftForge</title>
+  </head>
+
+  <body>
+    <main>
+      <h1>Add Product</h1>
+
+      <p>
+        <a href="/products">Back to products</a>
+      </p>
+
+      <form id="product-form">
+        <p>
+          <label>
+            Product name<br />
+            <input name="name" required />
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Product type<br />
+            <input name="product_type" required placeholder="3D Printed Product" />
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Material<br />
+            <input name="material" placeholder="PLA, cedar, maple, acrylic..." />
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Dimensions<br />
+            <input name="dimensions" placeholder="77 x 47 x 8mm" />
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Production time minutes<br />
+            <input name="production_time_minutes" type="number" min="0" />
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Estimated cost cents<br />
+            <input name="estimated_cost_cents" type="number" min="0" />
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Target price cents<br />
+            <input name="target_price_cents" type="number" min="0" />
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Color options<br />
+            <textarea name="color_options"></textarea>
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Finish options<br />
+            <textarea name="finish_options"></textarea>
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Customization rules<br />
+            <textarea name="customization_rules"></textarea>
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Shipping notes<br />
+            <textarea name="shipping_notes"></textarea>
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Care notes<br />
+            <textarea name="care_notes"></textarea>
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Photo notes<br />
+            <textarea name="photo_notes"></textarea>
+          </label>
+        </p>
+
+        <button type="submit">Save product</button>
+      </form>
+
+      <p id="message"></p>
+    </main>
+
+    <script>
+      const form = document.querySelector("#product-form");
+      const message = document.querySelector("#message");
+
+      form?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
+
+        for (const [key, value] of Object.entries(payload)) {
+          if (value === "") {
+            payload[key] = null;
+          }
+        }
+
+        const response = await fetch("/api/products", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          message.textContent = result.error ?? "Something went wrong.";
+          return;
+        }
+
+        window.location.href = "/products";
+      });
+    </script>
+  </body>
+</html>

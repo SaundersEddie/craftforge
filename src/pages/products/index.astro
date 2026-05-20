@@ -1,0 +1,54 @@
+---
+export const prerender = false;
+
+import { env } from "cloudflare:workers";
+
+const result = await env.DB
+  .prepare(
+    `SELECT id, name, product_type, material, dimensions, status, created_at
+     FROM products
+     ORDER BY created_at DESC`
+  )
+  .all();
+
+const products = result.results ?? [];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CraftForge Products</title>
+  </head>
+
+  <body>
+    <main>
+      <h1>CraftForge Products</h1>
+
+      <p>
+        <a href="/">Home</a>
+      </p>
+
+      {
+        products.length === 0 ? (
+          <p>No products saved yet.</p>
+        ) : (
+          <ul>
+            {products.map((product: any) => (
+              <li>
+                <strong>{product.name}</strong>
+                <br />
+                Type: {product.product_type}
+                <br />
+                Material: {product.material ?? "Not set"}
+                <br />
+                Dimensions: {product.dimensions ?? "Not set"}
+                <br />
+                Status: {product.status}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </main>
+  </body>
+</html>
