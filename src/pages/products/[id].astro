@@ -1,0 +1,155 @@
+---
+export const prerender = false;
+
+import { env } from "cloudflare:workers";
+
+type Product = {
+  id: number;
+  name: string;
+  product_type: string;
+  material: string | null;
+  dimensions: string | null;
+  production_time_minutes: number | null;
+  estimated_cost_cents: number | null;
+  target_price_cents: number | null;
+  color_options: string | null;
+  finish_options: string | null;
+  customization_rules: string | null;
+  shipping_notes: string | null;
+  care_notes: string | null;
+  photo_notes: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+const id = Astro.params.id;
+
+if (!id) {
+  return Astro.redirect("/products");
+}
+
+const product = await env.DB
+  .prepare(
+    `SELECT
+      id,
+      name,
+      product_type,
+      material,
+      dimensions,
+      production_time_minutes,
+      estimated_cost_cents,
+      target_price_cents,
+      color_options,
+      finish_options,
+      customization_rules,
+      shipping_notes,
+      care_notes,
+      photo_notes,
+      status,
+      created_at,
+      updated_at
+    FROM products
+    WHERE id = ?`
+  )
+  .bind(id)
+  .first<Product>();
+
+function formatCents(value: number | null) {
+  if (value === null) return "Not set";
+  return `$${(value / 100).toFixed(2)}`;
+}
+
+function formatMinutes(value: number | null) {
+  if (value === null) return "Not set";
+  return `${value} minutes`;
+}
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{product ? `${product.name} | CraftForge` : "Product not found | CraftForge"}</title>
+  </head>
+
+  <body>
+    <main>
+      <p>
+        <a href="/products">Back to products</a>
+      </p>
+
+      {
+        !product ? (
+          <>
+            <h1>Product not found</h1>
+            <p>That product does not exist, or it has been removed.</p>
+          </>
+        ) : (
+          <>
+            <h1>{product.name}</h1>
+
+            <p>
+              <strong>Status:</strong> {product.status}
+            </p>
+
+            <h2>Product details</h2>
+
+            <dl>
+              <dt>Type</dt>
+              <dd>{product.product_type}</dd>
+
+              <dt>Material</dt>
+              <dd>{product.material ?? "Not set"}</dd>
+
+              <dt>Dimensions</dt>
+              <dd>{product.dimensions ?? "Not set"}</dd>
+
+              <dt>Production time</dt>
+              <dd>{formatMinutes(product.production_time_minutes)}</dd>
+
+              <dt>Estimated cost</dt>
+              <dd>{formatCents(product.estimated_cost_cents)}</dd>
+
+              <dt>Target price</dt>
+              <dd>{formatCents(product.target_price_cents)}</dd>
+            </dl>
+
+            <h2>Options and rules</h2>
+
+            <dl>
+              <dt>Color options</dt>
+              <dd>{product.color_options ?? "Not set"}</dd>
+
+              <dt>Finish options</dt>
+              <dd>{product.finish_options ?? "Not set"}</dd>
+
+              <dt>Customization rules</dt>
+              <dd>{product.customization_rules ?? "Not set"}</dd>
+            </dl>
+
+            <h2>Listing notes</h2>
+
+            <dl>
+              <dt>Shipping notes</dt>
+              <dd>{product.shipping_notes ?? "Not set"}</dd>
+
+              <dt>Care notes</dt>
+              <dd>{product.care_notes ?? "Not set"}</dd>
+
+              <dt>Photo notes</dt>
+              <dd>{product.photo_notes ?? "Not set"}</dd>
+            </dl>
+
+            <p>
+              <small>
+                Created: {product.created_at}
+                <br />
+                Updated: {product.updated_at}
+              </small>
+            </p>
+          </>
+        )
+      }
+    </main>
+  </body>
+</html>
