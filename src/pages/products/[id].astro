@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import { env } from "cloudflare:workers";
+import { calculateListingHealth } from "../../lib/listingHealth";
 
 type Product = {
   id: number;
@@ -55,6 +56,8 @@ const product = await env.DB
   .bind(id)
   .first<Product>();
 
+const health = product ? calculateListingHealth(product) : null;
+
 function formatCents(value: number | null) {
   if (value === null) return "Not set";
   return `$${(value / 100).toFixed(2)}`;
@@ -92,6 +95,38 @@ function formatMinutes(value: number | null) {
               <strong>Status:</strong> {product.status}
             </p>
 
+            <h2>Listing health</h2>
+
+            {
+            health && (
+                <section>
+                <p>
+                    <strong>Score:</strong> {health.score}/{health.maxScore} ({health.percentage}%)
+                </p>
+
+                {health.warnings.length > 0 && (
+                    <>
+                    <h3>Warnings</h3>
+                    <ul>
+                        {health.warnings.map((warning) => (
+                        <li>{warning}</li>
+                        ))}
+                    </ul>
+                    </>
+                )}
+
+                <h3>Checks</h3>
+                <ul>
+                    {health.checks.map((check) => (
+                    <li>
+                        <strong>{check.passed ? "Pass" : "Needs work"}:</strong>{" "}
+                        {check.message}
+                    </li>
+                    ))}
+                </ul>
+                </section>
+            )
+    }
             <h2>Product details</h2>
 
             <dl>
