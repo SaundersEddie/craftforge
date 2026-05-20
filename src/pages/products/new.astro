@@ -5,112 +5,146 @@
   <head>
     <meta charset="utf-8" />
     <title>New Product | CraftForge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
 
   <body>
-    <main>
-      <h1>Add Product</h1>
+    <main class="page-shell">
+      <a class="back-link" href="/products">← Back to products</a>
 
-      <p>
-        <a href="/products">Back to products</a>
-      </p>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">CraftForge</p>
+          <h1>Add Product</h1>
+          <p class="lede">
+            Capture the real maker details first. The launch pack is only as good as
+            the notes you give it.
+          </p>
+        </div>
+      </section>
 
-      <form id="product-form">
-        <p>
-          <label>
-            Product name<br />
-            <input name="name" required />
-          </label>
-        </p>
+      <form id="product-form" class="form-shell">
+        <section class="form-card intro-card">
+          <div>
+            <p class="eyebrow">Required basics</p>
+            <h2>What did you make?</h2>
+            <p>
+              Start with the product name and type. Everything else helps CraftForge
+              produce better launch material later.
+            </p>
+          </div>
 
-        <p>
-          <label>
-            Product type<br />
-            <input name="product_type" required placeholder="3D Printed Product" />
-          </label>
-        </p>
+          <div class="field-grid">
+            <label>
+              <span>Product name</span>
+              <input name="name" required placeholder="Test Bag Clips" />
+            </label>
 
-        <p>
-          <label>
-            Material<br />
-            <input name="material" placeholder="PLA, cedar, maple, acrylic..." />
-          </label>
-        </p>
+            <label>
+              <span>Product type</span>
+              <input name="product_type" required placeholder="3D Printed Product" />
+            </label>
+          </div>
+        </section>
 
-        <p>
-          <label>
-            Dimensions<br />
-            <input name="dimensions" placeholder="77 x 47 x 8mm" />
-          </label>
-        </p>
+        <section class="form-card">
+          <div class="section-heading">
+            <p class="eyebrow">Product details</p>
+            <h2>Material, size, and time</h2>
+          </div>
 
-        <p>
-          <label>
-            Production time minutes<br />
-            <input name="production_time_minutes" type="number" min="0" />
-          </label>
-        </p>
+          <div class="field-grid">
+            <label>
+              <span>Material</span>
+              <input name="material" placeholder="PLA, cedar, maple, acrylic..." />
+            </label>
 
-        <p>
-          <label>
-            Estimated cost cents<br />
-            <input name="estimated_cost_cents" type="number" min="0" />
-          </label>
-        </p>
+            <label>
+              <span>Dimensions</span>
+              <input name="dimensions" placeholder="77 x 47 x 8mm" />
+            </label>
 
-        <p>
-          <label>
-            Target price cents<br />
-            <input name="target_price_cents" type="number" min="0" />
-          </label>
-        </p>
+            <label>
+              <span>Production time minutes</span>
+              <input name="production_time_minutes" type="number" min="0" placeholder="75" />
+            </label>
 
-        <p>
-          <label>
-            Color options<br />
-            <textarea name="color_options"></textarea>
-          </label>
-        </p>
+            <label>
+              <span>Estimated cost cents</span>
+              <input name="estimated_cost_cents" type="number" min="0" placeholder="300" />
+              <small>Example: enter 300 for $3.00</small>
+            </label>
 
-        <p>
-          <label>
-            Finish options<br />
-            <textarea name="finish_options"></textarea>
-          </label>
-        </p>
+            <label>
+              <span>Target price cents</span>
+              <input name="target_price_cents" type="number" min="0" placeholder="1500" />
+              <small>Example: enter 1500 for $15.00</small>
+            </label>
+          </div>
+        </section>
 
-        <p>
-          <label>
-            Customization rules<br />
-            <textarea name="customization_rules"></textarea>
-          </label>
-        </p>
+        <section class="form-card">
+          <div class="section-heading">
+            <p class="eyebrow">Buyer choices</p>
+            <h2>Options and customization</h2>
+          </div>
 
-        <p>
-          <label>
-            Shipping notes<br />
-            <textarea name="shipping_notes"></textarea>
-          </label>
-        </p>
+          <div class="field-grid two-column-textareas">
+            <label>
+              <span>Color options</span>
+              <textarea name="color_options" placeholder="Random colors, selected colors, custom color requests..."></textarea>
+            </label>
 
-        <p>
-          <label>
-            Care notes<br />
-            <textarea name="care_notes"></textarea>
-          </label>
-        </p>
+            <label>
+              <span>Finish options</span>
+              <textarea name="finish_options" placeholder="Matte, gloss, semi-gloss, painted, sealed, natural..."></textarea>
+            </label>
 
-        <p>
-          <label>
-            Photo notes<br />
-            <textarea name="photo_notes"></textarea>
-          </label>
-        </p>
+            <label class="wide-field">
+              <span>Customization rules</span>
+              <textarea name="customization_rules" placeholder="What buyers can customize, what they cannot, and any no-return rules for custom work."></textarea>
+            </label>
+          </div>
+        </section>
 
-        <button type="submit">Save product</button>
+        <section class="form-card">
+          <div class="section-heading">
+            <p class="eyebrow">Listing support</p>
+            <h2>Shipping, care, and photos</h2>
+          </div>
+
+          <div class="field-grid two-column-textareas">
+            <label>
+              <span>Shipping notes</span>
+              <textarea name="shipping_notes" placeholder="Ships in 7 x 5 x 2 box with USPS Ground Advantage and tracking..."></textarea>
+            </label>
+
+            <label>
+              <span>Care notes</span>
+              <textarea name="care_notes" placeholder="Keep away from high heat, wipe clean only, indoor use, outdoor finish notes..."></textarea>
+            </label>
+
+            <label class="wide-field">
+              <span>Photo notes</span>
+              <textarea name="photo_notes" placeholder="Main product shot, scale photo, packaging photo, color comparison, in-use example..."></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="submit-card">
+          <div>
+            <h2>Save the product</h2>
+            <p>
+              This creates the product record. Launch packs and health checks happen
+              on the product detail page.
+            </p>
+          </div>
+
+          <button type="submit">Save product</button>
+        </section>
+
+        <p id="message" aria-live="polite"></p>
       </form>
-
-      <p id="message" aria-live="polite"></p>
     </main>
 
     <script>
@@ -137,6 +171,10 @@
           }
         }
 
+        if (message) {
+          message.textContent = "Saving product...";
+        }
+
         const response = await fetch("/api/products", {
           method: "POST",
           headers: {
@@ -145,7 +183,6 @@
           body: JSON.stringify(payload),
         });
 
-        // const result = await response.json();
         const result = (await response.json()) as ApiResult;
 
         if (!response.ok) {
@@ -161,3 +198,240 @@
     </script>
   </body>
 </html>
+
+<style>
+  :root {
+    color-scheme: dark;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+    background: #0f1115;
+    color: #f4f0e8;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(229, 123, 53, 0.22), transparent 32rem),
+      radial-gradient(circle at bottom right, rgba(89, 132, 111, 0.22), transparent 30rem),
+      #0f1115;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .page-shell {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2rem 0 4rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    margin-bottom: 2rem;
+    color: #cfc7ba;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    color: #e57b35;
+  }
+
+  .hero {
+    margin-bottom: 1.5rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 0.5rem;
+    color: #e57b35;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    letter-spacing: -0.04em;
+  }
+
+  .lede {
+    max-width: 720px;
+    margin: 1rem 0 0;
+    color: #cfc7ba;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  .form-shell {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .form-card,
+  .submit-card {
+    border: 1px solid rgba(244, 240, 232, 0.12);
+    border-radius: 1.5rem;
+    background: rgba(22, 24, 31, 0.78);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+    padding: 1.2rem;
+    backdrop-filter: blur(14px);
+  }
+
+  .intro-card {
+    display: grid;
+    grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .intro-card p,
+  .submit-card p {
+    color: #cfc7ba;
+    line-height: 1.55;
+  }
+
+  .section-heading {
+    margin-bottom: 1rem;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  label {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  label span {
+    color: #f4f0e8;
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    border: 1px solid rgba(244, 240, 232, 0.14);
+    border-radius: 1rem;
+    background: rgba(15, 17, 21, 0.72);
+    color: #f4f0e8;
+    font: inherit;
+    outline: none;
+  }
+
+  input {
+    min-height: 3rem;
+    padding: 0 0.9rem;
+  }
+
+  textarea {
+    min-height: 8rem;
+    resize: vertical;
+    padding: 0.9rem;
+    line-height: 1.5;
+  }
+
+  input:focus,
+  textarea:focus {
+    border-color: rgba(229, 123, 53, 0.7);
+    box-shadow: 0 0 0 4px rgba(229, 123, 53, 0.12);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #756d63;
+  }
+
+  small {
+    color: #92897d;
+    font-size: 0.78rem;
+  }
+
+  .wide-field {
+    grid-column: 1 / -1;
+  }
+
+  .submit-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .submit-card p {
+    margin-bottom: 0;
+  }
+
+  button {
+    min-width: max-content;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.9rem 1.2rem;
+    background: #e57b35;
+    color: #1a120d;
+    box-shadow: 0 18px 40px rgba(229, 123, 53, 0.22);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 900;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+  }
+
+  #message {
+    min-height: 1.5rem;
+    margin: 0;
+    color: #cfc7ba;
+  }
+
+  @media (max-width: 820px) {
+    .intro-card,
+    .field-grid,
+    .submit-card {
+      grid-template-columns: 1fr;
+    }
+
+    .submit-card {
+      align-items: stretch;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .page-shell {
+      width: min(100% - 1rem, 1120px);
+      padding-top: 1rem;
+    }
+
+    .form-card,
+    .submit-card {
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+  }
+</style>
