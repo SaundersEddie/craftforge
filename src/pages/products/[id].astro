@@ -24,6 +24,47 @@ type Product = {
   updated_at: string;
 };
 
+type LaunchPack = {
+  id: number;
+  product_id: number;
+  etsy_title: string | null;
+  short_description: string | null;
+  long_description: string | null;
+  etsy_tags_json: string | null;
+  facebook_post: string | null;
+  website_blurb: string | null;
+  photo_checklist_json: string | null;
+  improvement_notes_json: string | null;
+  health_score: number | null;
+  created_at: string;
+};
+
+function formatCents(value: number | null) {
+  if (value === null) return "Not set";
+  return `$${(value / 100).toFixed(2)}`;
+}
+
+function formatMinutes(value: number | null) {
+  if (value === null) return "Not set";
+  return `${value} minutes`;
+}
+
+function parseJsonList(value: string | null) {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value);
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter((item): item is string => typeof item === "string");
+  } catch {
+    return [];
+  }
+}
+
 const id = Astro.params.id;
 
 if (!id) {
@@ -56,17 +97,32 @@ const product = await env.DB
   .bind(id)
   .first<Product>();
 
+const launchPackResult = product
+  ? await env.DB
+      .prepare(
+        `SELECT
+          id,
+          product_id,
+          etsy_title,
+          short_description,
+          long_description,
+          etsy_tags_json,
+          facebook_post,
+          website_blurb,
+          photo_checklist_json,
+          improvement_notes_json,
+          health_score,
+          created_at
+        FROM launch_packs
+        WHERE product_id = ?
+        ORDER BY created_at DESC`
+      )
+      .bind(product.id)
+      .all<LaunchPack>()
+  : { results: [] };
+
+const launchPacks = launchPackResult.results ?? [];
 const health = product ? calculateListingHealth(product) : null;
-
-function formatCents(value: number | null) {
-  if (value === null) return "Not set";
-  return `$${(value / 100).toFixed(2)}`;
-}
-
-function formatMinutes(value: number | null) {
-  if (value === null) return "Not set";
-  return `${value} minutes`;
-}
 ---
 
 <html lang="en">
@@ -95,38 +151,49 @@ function formatMinutes(value: number | null) {
               <strong>Status:</strong> {product.status}
             </p>
 
+            <section>
+              <h2>Launch pack</h2>
+
+              <button id="generate-launch-pack" type="button" data-product-id={product.id}>
+                Generate Launch Pack
+              </button>
+
+              <p id="launch-pack-message" aria-live="polite"></p>
+            </section>
+
             <h2>Listing health</h2>
 
             {
-            health && (
+              health && (
                 <section>
-                <p>
+                  <p>
                     <strong>Score:</strong> {health.score}/{health.maxScore} ({health.percentage}%)
-                </p>
+                  </p>
 
-                {health.warnings.length > 0 && (
+                  {health.warnings.length > 0 && (
                     <>
-                    <h3>Warnings</h3>
-                    <ul>
+                      <h3>Warnings</h3>
+                      <ul>
                         {health.warnings.map((warning) => (
-                        <li>{warning}</li>
+                          <li>{warning}</li>
                         ))}
-                    </ul>
+                      </ul>
                     </>
-                )}
+                  )}
 
-                <h3>Checks</h3>
-                <ul>
+                  <h3>Checks</h3>
+                  <ul>
                     {health.checks.map((check) => (
-                    <li>
+                      <li>
                         <strong>{check.passed ? "Pass" : "Needs work"}:</strong>{" "}
                         {check.message}
-                    </li>
+                      </li>
                     ))}
-                </ul>
+                  </ul>
                 </section>
-            )
-    }
+              )
+            }
+
             <h2>Product details</h2>
 
             <dl>
@@ -175,6 +242,85 @@ function formatMinutes(value: number | null) {
               <dd>{product.photo_notes ?? "Not set"}</dd>
             </dl>
 
+            <h2>Saved launch packs</h2>
+
+            {
+              launchPacks.length === 0 ? (
+                <p>No launch packs generated yet.</p>
+              ) : (
+                <section>
+                  {launchPacks.map((pack) => {
+                    const tags = parseJsonList(pack.etsy_tags_json);
+                    const photoChecklist = parseJsonList(pack.photo_checklist_json);
+                    const improvementNotes = parseJsonList(pack.improvement_notes_json);
+
+                    return (
+                      <article>
+                        <hr />
+
+                        <h3>Launch Pack #{pack.id}</h3>
+
+                        <p>
+                          <strong>Created:</strong> {pack.created_at}
+                          <br />
+                          <strong>Health score snapshot:</strong>{" "}
+                          {pack.health_score === null ? "Not set" : `${pack.health_score}%`}
+                        </p>
+
+                        <h4>Etsy title</h4>
+                        <p>{pack.etsy_title ?? "Not set"}</p>
+
+                        <h4>Short description</h4>
+                        <p>{pack.short_description ?? "Not set"}</p>
+
+                        <h4>Long description</h4>
+                        <pre>{pack.long_description ?? "Not set"}</pre>
+
+                        <h4>Etsy tags</h4>
+                        {tags.length === 0 ? (
+                          <p>No tags saved.</p>
+                        ) : (
+                          <ul>
+                            {tags.map((tag) => (
+                              <li>{tag}</li>
+                            ))}
+                          </ul>
+                        )}
+
+                        <h4>Facebook post</h4>
+                        <pre>{pack.facebook_post ?? "Not set"}</pre>
+
+                        <h4>Website blurb</h4>
+                        <p>{pack.website_blurb ?? "Not set"}</p>
+
+                        <h4>Photo checklist</h4>
+                        {photoChecklist.length === 0 ? (
+                          <p>No photo checklist saved.</p>
+                        ) : (
+                          <ul>
+                            {photoChecklist.map((item) => (
+                              <li>{item}</li>
+                            ))}
+                          </ul>
+                        )}
+
+                        <h4>Improvement notes</h4>
+                        {improvementNotes.length === 0 ? (
+                          <p>No improvement notes saved.</p>
+                        ) : (
+                          <ul>
+                            {improvementNotes.map((note) => (
+                              <li>{note}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </article>
+                    );
+                  })}
+                </section>
+              )
+            }
+
             <p>
               <small>
                 Created: {product.created_at}
@@ -186,5 +332,57 @@ function formatMinutes(value: number | null) {
         )
       }
     </main>
+
+    <script>
+      type LaunchPackResult = {
+        id?: number;
+        message?: string;
+        error?: string;
+      };
+
+      const button = document.querySelector<HTMLButtonElement>("#generate-launch-pack");
+      const message = document.querySelector<HTMLParagraphElement>("#launch-pack-message");
+
+      button?.addEventListener("click", async () => {
+        const productId = button.dataset.productId;
+
+        if (!productId) {
+          if (message) {
+            message.textContent = "Missing product id.";
+          }
+
+          return;
+        }
+
+        button.disabled = true;
+
+        if (message) {
+          message.textContent = "Generating launch pack...";
+        }
+
+        const response = await fetch("/api/launch-packs/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            product_id: Number(productId),
+          }),
+        });
+
+        const result = (await response.json()) as LaunchPackResult;
+
+        if (!response.ok) {
+          if (message) {
+            message.textContent = result.error ?? "Something went wrong.";
+          }
+
+          button.disabled = false;
+          return;
+        }
+
+        window.location.reload();
+      });
+    </script>
   </body>
 </html>
