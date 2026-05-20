@@ -3,11 +3,51 @@ import { env } from "cloudflare:workers";
 
 export const prerender = false;
 
+type ProductInput = {
+  name?: unknown;
+  product_type?: unknown;
+  material?: unknown;
+  dimensions?: unknown;
+  production_time_minutes?: unknown;
+  estimated_cost_cents?: unknown;
+  target_price_cents?: unknown;
+  color_options?: unknown;
+  finish_options?: unknown;
+  customization_rules?: unknown;
+  shipping_notes?: unknown;
+  care_notes?: unknown;
+  photo_notes?: unknown;
+  status?: unknown;
+};
+
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+function asStringOrNull(value: unknown) {
+  if (typeof value !== "string") return null;
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function asNumberOrNull(value: unknown) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
 }
 
 export const GET: APIRoute = async () => {
@@ -26,16 +66,13 @@ export const GET: APIRoute = async () => {
 
 export const POST: APIRoute = async ({ request }) => {
   const db = env.DB;
-  const body = await request.json();
+  const body = (await request.json()) as ProductInput;
 
-  const name = String(body.name ?? "").trim();
-  const productType = String(body.product_type ?? "").trim();
+  const name = asStringOrNull(body.name);
+  const productType = asStringOrNull(body.product_type);
 
   if (!name || !productType) {
-    return json(
-      { error: "Product name and product_type are required" },
-      400
-    );
+    return json({ error: "Product name and product_type are required" }, 400);
   }
 
   const result = await db
@@ -61,18 +98,18 @@ export const POST: APIRoute = async ({ request }) => {
     .bind(
       name,
       productType,
-      body.material ?? null,
-      body.dimensions ?? null,
-      body.production_time_minutes ?? null,
-      body.estimated_cost_cents ?? null,
-      body.target_price_cents ?? null,
-      body.color_options ?? null,
-      body.finish_options ?? null,
-      body.customization_rules ?? null,
-      body.shipping_notes ?? null,
-      body.care_notes ?? null,
-      body.photo_notes ?? null,
-      body.status ?? "draft"
+      asStringOrNull(body.material),
+      asStringOrNull(body.dimensions),
+      asNumberOrNull(body.production_time_minutes),
+      asNumberOrNull(body.estimated_cost_cents),
+      asNumberOrNull(body.target_price_cents),
+      asStringOrNull(body.color_options),
+      asStringOrNull(body.finish_options),
+      asStringOrNull(body.customization_rules),
+      asStringOrNull(body.shipping_notes),
+      asStringOrNull(body.care_notes),
+      asStringOrNull(body.photo_notes),
+      asStringOrNull(body.status) ?? "draft"
     )
     .first<{ id: number }>();
 

@@ -110,21 +110,29 @@
         <button type="submit">Save product</button>
       </form>
 
-      <p id="message"></p>
+      <p id="message" aria-live="polite"></p>
     </main>
 
     <script>
-      const form = document.querySelector("#product-form");
-      const message = document.querySelector("#message");
+      type ProductPayload = Record<string, FormDataEntryValue | null>;
+
+      type ApiResult = {
+        id?: number;
+        message?: string;
+        error?: string;
+      };
+
+      const form = document.querySelector<HTMLFormElement>("#product-form");
+      const message = document.querySelector<HTMLParagraphElement>("#message");
 
       form?.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const formData = new FormData(form);
-        const payload = Object.fromEntries(formData.entries());
+        const payload: ProductPayload = Object.fromEntries(formData.entries());
 
-        for (const [key, value] of Object.entries(payload)) {
-          if (value === "") {
+        for (const key of Object.keys(payload)) {
+          if (payload[key] === "") {
             payload[key] = null;
           }
         }
@@ -137,10 +145,14 @@
           body: JSON.stringify(payload),
         });
 
-        const result = await response.json();
+        // const result = await response.json();
+        const result = (await response.json()) as ApiResult;
 
         if (!response.ok) {
-          message.textContent = result.error ?? "Something went wrong.";
+          if (message) {
+            message.textContent = result.error ?? "Something went wrong.";
+          }
+
           return;
         }
 
