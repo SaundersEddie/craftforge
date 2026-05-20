@@ -1,0 +1,31 @@
+<script is:inline>
+  (() => {
+    const storageKey = "craftforge-theme";
+
+    function applyTheme(mode) {
+      const root = document.documentElement;
+
+      if (mode === "system") {
+        root.removeAttribute("data-theme");
+        return;
+      }
+
+      root.setAttribute("data-theme", mode);
+    }
+
+    const saved = localStorage.getItem(storageKey) || "system";
+    applyTheme(saved);
+
+    window.CraftForgeTheme = {
+      storageKey,
+      applyTheme,
+      getTheme() {
+        return localStorage.getItem(storageKey) || "system";
+      },
+      setTheme(mode) {
+        localStorage.setItem(storageKey, mode);
+        applyTheme(mode);
+      },
+    };
+  })();
+</script>

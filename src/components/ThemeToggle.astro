@@ -1,0 +1,40 @@
+<div class="theme-toggle" aria-label="Theme selector">
+  <button type="button" data-theme-choice="system" aria-pressed="true">System</button>
+  <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+  <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+</div>
+
+<script>
+  type CraftForgeThemeApi = {
+    getTheme: () => string;
+    setTheme: (mode: string) => void;
+  };
+
+  declare global {
+    interface Window {
+      CraftForgeTheme?: CraftForgeThemeApi;
+    }
+  }
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-theme-choice]");
+
+  function updatePressed(activeTheme: string) {
+    buttons.forEach((button) => {
+      button.setAttribute(
+        "aria-pressed",
+        button.dataset.themeChoice === activeTheme ? "true" : "false"
+      );
+    });
+  }
+
+  const currentTheme = window.CraftForgeTheme?.getTheme() ?? "system";
+  updatePressed(currentTheme);
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const theme = button.dataset.themeChoice ?? "system";
+      window.CraftForgeTheme?.setTheme(theme);
+      updatePressed(theme);
+    });
+  });
+</script>
