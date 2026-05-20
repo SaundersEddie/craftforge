@@ -1,46 +1,76 @@
-# Astro Starter Kit: Basics
+# CraftForge
 
-```sh
-npm create astro@latest -- --template basics
+CraftForge is a product launch system for makers.
+
+It helps turn real product notes for handmade, 3D printed, laser, CNC, and woodworking products into practical launch materials: listing copy, social posts, photo checklists, and improvement notes.
+
+The first goal is not public SaaS. The first goal is simple:
+
+> Can CraftForge take one real Brindle Besties product and produce a usable launch pack in under 10 minutes?
+
+## Current status
+
+Early v0.1 foundation.
+
+## Core v0.1 workflow
+
+```txt
+Add product → Save product → Generate launch pack → Review health score → Use for real listing
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## MVP features
 
-## 🚀 Project Structure
+- Product library
+- Product create form
+- Product detail page
+- Saved launch packs
+- Listing health score
+- Launch pack generator placeholder
+- AI generation later, after the core workflow works
 
-Inside of your Astro project, you'll see the following folders and files:
+## Not in v0.1
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+- Authentication
+- User accounts
+- Stripe billing
+- Public SaaS launch
+- Image uploads
+- R2 storage
+- Etsy API integration
+- Social scheduling
+- Agent mode
+
+New ideas go to Backlog or Icebox, not directly into Today.
+
+## Stack
+
+- Astro
+- Cloudflare Pages
+- Cloudflare Pages Functions / Workers
+- Cloudflare D1
+- TypeScript
+- GitHub Projects
+
+## Project structure
+
+```txt
+craftforge/
+  src/
+    pages/
+    components/
+    lib/
+  migrations/
+  docs/
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Core principle
 
-## 🧞 Commands
+CraftForge should feel like it understands maker reality better than generic AI tools.
 
-All commands are run from the root of the project, from a terminal:
+Generic AI asks:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+> What do you want to write?
 
-## 👀 Want to learn more?
+CraftForge asks:
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+> What are you making, what is it made from, how long does it take, what can go wrong, and where are you selling it?
