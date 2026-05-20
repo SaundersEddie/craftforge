@@ -129,204 +129,270 @@ const health = product ? calculateListingHealth(product) : null;
   <head>
     <meta charset="utf-8" />
     <title>{product ? `${product.name} | CraftForge` : "Product not found | CraftForge"}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
 
   <body>
-    <main>
-      <p>
-        <a href="/products">Back to products</a>
-      </p>
+    <main class="page-shell">
+      <a class="back-link" href="/products">← Back to products</a>
 
       {
         !product ? (
-          <>
+          <section class="panel">
             <h1>Product not found</h1>
             <p>That product does not exist, or it has been removed.</p>
-          </>
+          </section>
         ) : (
           <>
-            <h1>{product.name}</h1>
+            <section class="hero">
+              <div>
+                <p class="eyebrow">Product detail</p>
+                <h1>{product.name}</h1>
+                <p class="lede">
+                  {product.product_type} · {product.material ?? "Material not set"} ·{" "}
+                  {product.status}
+                </p>
+              </div>
 
-            <p>
-              <strong>Status:</strong> {product.status}
-            </p>
-
-            <section>
-              <h2>Launch pack</h2>
-
-              <button id="generate-launch-pack" type="button" data-product-id={product.id}>
-                Generate Launch Pack
-              </button>
-
-              <p id="launch-pack-message" aria-live="polite"></p>
+              <div class="hero-action">
+                <button id="generate-launch-pack" type="button" data-product-id={product.id}>
+                  Generate Launch Pack
+                </button>
+                <p id="launch-pack-message" aria-live="polite"></p>
+              </div>
             </section>
 
-            <h2>Listing health</h2>
+            <section class="dashboard-grid">
+              <article class="panel health-panel">
+                <div class="panel-heading">
+                  <p class="eyebrow">Listing health</p>
+                  <h2>
+                    {health ? `${health.percentage}%` : "Not available"}
+                  </h2>
+                </div>
 
-            {
-              health && (
-                <section>
-                  <p>
-                    <strong>Score:</strong> {health.score}/{health.maxScore} ({health.percentage}%)
-                  </p>
-
-                  {health.warnings.length > 0 && (
+                {
+                  health && (
                     <>
-                      <h3>Warnings</h3>
-                      <ul>
-                        {health.warnings.map((warning) => (
-                          <li>{warning}</li>
+                      <p class="muted">
+                        Score: {health.score}/{health.maxScore}
+                      </p>
+
+                      {health.warnings.length > 0 && (
+                        <div class="warning-box">
+                          <h3>Warnings</h3>
+                          <ul>
+                            {health.warnings.map((warning) => (
+                              <li>{warning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      <h3>Checks</h3>
+                      <ul class="check-list">
+                        {health.checks.map((check) => (
+                          <li class={check.passed ? "pass" : "needs-work"}>
+                            <span>{check.passed ? "✓" : "!"}</span>
+                            <p>{check.message}</p>
+                          </li>
                         ))}
                       </ul>
                     </>
-                  )}
+                  )
+                }
+              </article>
 
-                  <h3>Checks</h3>
-                  <ul>
-                    {health.checks.map((check) => (
-                      <li>
-                        <strong>{check.passed ? "Pass" : "Needs work"}:</strong>{" "}
-                        {check.message}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )
-            }
+              <article class="panel">
+                <p class="eyebrow">Core details</p>
+                <dl class="detail-list">
+                  <div>
+                    <dt>Type</dt>
+                    <dd>{product.product_type}</dd>
+                  </div>
 
-            <h2>Product details</h2>
+                  <div>
+                    <dt>Material</dt>
+                    <dd>{product.material ?? "Not set"}</dd>
+                  </div>
 
-            <dl>
-              <dt>Type</dt>
-              <dd>{product.product_type}</dd>
+                  <div>
+                    <dt>Dimensions</dt>
+                    <dd>{product.dimensions ?? "Not set"}</dd>
+                  </div>
 
-              <dt>Material</dt>
-              <dd>{product.material ?? "Not set"}</dd>
+                  <div>
+                    <dt>Production time</dt>
+                    <dd>{formatMinutes(product.production_time_minutes)}</dd>
+                  </div>
 
-              <dt>Dimensions</dt>
-              <dd>{product.dimensions ?? "Not set"}</dd>
+                  <div>
+                    <dt>Estimated cost</dt>
+                    <dd>{formatCents(product.estimated_cost_cents)}</dd>
+                  </div>
 
-              <dt>Production time</dt>
-              <dd>{formatMinutes(product.production_time_minutes)}</dd>
+                  <div>
+                    <dt>Target price</dt>
+                    <dd>{formatCents(product.target_price_cents)}</dd>
+                  </div>
+                </dl>
+              </article>
 
-              <dt>Estimated cost</dt>
-              <dd>{formatCents(product.estimated_cost_cents)}</dd>
+              <article class="panel">
+                <p class="eyebrow">Options and rules</p>
+                <dl class="detail-list">
+                  <div>
+                    <dt>Color options</dt>
+                    <dd>{product.color_options ?? "Not set"}</dd>
+                  </div>
 
-              <dt>Target price</dt>
-              <dd>{formatCents(product.target_price_cents)}</dd>
-            </dl>
+                  <div>
+                    <dt>Finish options</dt>
+                    <dd>{product.finish_options ?? "Not set"}</dd>
+                  </div>
 
-            <h2>Options and rules</h2>
+                  <div>
+                    <dt>Customization rules</dt>
+                    <dd>{product.customization_rules ?? "Not set"}</dd>
+                  </div>
+                </dl>
+              </article>
 
-            <dl>
-              <dt>Color options</dt>
-              <dd>{product.color_options ?? "Not set"}</dd>
+              <article class="panel">
+                <p class="eyebrow">Listing notes</p>
+                <dl class="detail-list">
+                  <div>
+                    <dt>Shipping notes</dt>
+                    <dd>{product.shipping_notes ?? "Not set"}</dd>
+                  </div>
 
-              <dt>Finish options</dt>
-              <dd>{product.finish_options ?? "Not set"}</dd>
+                  <div>
+                    <dt>Care notes</dt>
+                    <dd>{product.care_notes ?? "Not set"}</dd>
+                  </div>
 
-              <dt>Customization rules</dt>
-              <dd>{product.customization_rules ?? "Not set"}</dd>
-            </dl>
+                  <div>
+                    <dt>Photo notes</dt>
+                    <dd>{product.photo_notes ?? "Not set"}</dd>
+                  </div>
+                </dl>
+              </article>
+            </section>
 
-            <h2>Listing notes</h2>
+            <section class="launch-pack-section">
+              <div class="section-heading">
+                <p class="eyebrow">Generated output</p>
+                <h2>Saved launch packs</h2>
+                <p>
+                  These are saved snapshots. Later, AI generation can replace the placeholder
+                  copy without changing the display structure.
+                </p>
+              </div>
 
-            <dl>
-              <dt>Shipping notes</dt>
-              <dd>{product.shipping_notes ?? "Not set"}</dd>
+              {
+                launchPacks.length === 0 ? (
+                  <article class="panel">
+                    <h3>No launch packs generated yet</h3>
+                    <p class="muted">
+                      Generate one from this product’s saved notes to test the full workflow.
+                    </p>
+                  </article>
+                ) : (
+                  <div class="launch-pack-list">
+                    {launchPacks.map((pack) => {
+                      const tags = parseJsonList(pack.etsy_tags_json);
+                      const photoChecklist = parseJsonList(pack.photo_checklist_json);
+                      const improvementNotes = parseJsonList(pack.improvement_notes_json);
 
-              <dt>Care notes</dt>
-              <dd>{product.care_notes ?? "Not set"}</dd>
+                      return (
+                        <article class="panel launch-pack-card">
+                          <div class="launch-pack-header">
+                            <div>
+                              <p class="eyebrow">Launch Pack #{pack.id}</p>
+                              <h3>{pack.etsy_title ?? "Untitled launch pack"}</h3>
+                            </div>
 
-              <dt>Photo notes</dt>
-              <dd>{product.photo_notes ?? "Not set"}</dd>
-            </dl>
+                            <div class="score-pill">
+                              {pack.health_score === null ? "No score" : `${pack.health_score}%`}
+                            </div>
+                          </div>
 
-            <h2>Saved launch packs</h2>
+                          <p class="muted">Created: {pack.created_at}</p>
 
-            {
-              launchPacks.length === 0 ? (
-                <p>No launch packs generated yet.</p>
-              ) : (
-                <section>
-                  {launchPacks.map((pack) => {
-                    const tags = parseJsonList(pack.etsy_tags_json);
-                    const photoChecklist = parseJsonList(pack.photo_checklist_json);
-                    const improvementNotes = parseJsonList(pack.improvement_notes_json);
+                          <div class="copy-block">
+                            <h4>Short description</h4>
+                            <p>{pack.short_description ?? "Not set"}</p>
+                          </div>
 
-                    return (
-                      <article>
-                        <hr />
+                          <div class="copy-block">
+                            <h4>Long description</h4>
+                            <pre>{pack.long_description ?? "Not set"}</pre>
+                          </div>
 
-                        <h3>Launch Pack #{pack.id}</h3>
+                          <div class="copy-block">
+                            <h4>Etsy tags</h4>
+                            {tags.length === 0 ? (
+                              <p>No tags saved.</p>
+                            ) : (
+                              <div class="tag-list">
+                                {tags.map((tag) => (
+                                  <span>{tag}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
 
-                        <p>
-                          <strong>Created:</strong> {pack.created_at}
-                          <br />
-                          <strong>Health score snapshot:</strong>{" "}
-                          {pack.health_score === null ? "Not set" : `${pack.health_score}%`}
-                        </p>
+                          <div class="copy-grid">
+                            <div class="copy-block">
+                              <h4>Facebook post</h4>
+                              <pre>{pack.facebook_post ?? "Not set"}</pre>
+                            </div>
 
-                        <h4>Etsy title</h4>
-                        <p>{pack.etsy_title ?? "Not set"}</p>
+                            <div class="copy-block">
+                              <h4>Website blurb</h4>
+                              <p>{pack.website_blurb ?? "Not set"}</p>
+                            </div>
+                          </div>
 
-                        <h4>Short description</h4>
-                        <p>{pack.short_description ?? "Not set"}</p>
+                          <div class="copy-grid">
+                            <div class="copy-block">
+                              <h4>Photo checklist</h4>
+                              {photoChecklist.length === 0 ? (
+                                <p>No photo checklist saved.</p>
+                              ) : (
+                                <ul>
+                                  {photoChecklist.map((item) => (
+                                    <li>{item}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
 
-                        <h4>Long description</h4>
-                        <pre>{pack.long_description ?? "Not set"}</pre>
+                            <div class="copy-block">
+                              <h4>Improvement notes</h4>
+                              {improvementNotes.length === 0 ? (
+                                <p>No improvement notes saved.</p>
+                              ) : (
+                                <ul>
+                                  {improvementNotes.map((note) => (
+                                    <li>{note}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )
+              }
+            </section>
 
-                        <h4>Etsy tags</h4>
-                        {tags.length === 0 ? (
-                          <p>No tags saved.</p>
-                        ) : (
-                          <ul>
-                            {tags.map((tag) => (
-                              <li>{tag}</li>
-                            ))}
-                          </ul>
-                        )}
-
-                        <h4>Facebook post</h4>
-                        <pre>{pack.facebook_post ?? "Not set"}</pre>
-
-                        <h4>Website blurb</h4>
-                        <p>{pack.website_blurb ?? "Not set"}</p>
-
-                        <h4>Photo checklist</h4>
-                        {photoChecklist.length === 0 ? (
-                          <p>No photo checklist saved.</p>
-                        ) : (
-                          <ul>
-                            {photoChecklist.map((item) => (
-                              <li>{item}</li>
-                            ))}
-                          </ul>
-                        )}
-
-                        <h4>Improvement notes</h4>
-                        {improvementNotes.length === 0 ? (
-                          <p>No improvement notes saved.</p>
-                        ) : (
-                          <ul>
-                            {improvementNotes.map((note) => (
-                              <li>{note}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </article>
-                    );
-                  })}
-                </section>
-              )
-            }
-
-            <p>
-              <small>
-                Created: {product.created_at}
-                <br />
-                Updated: {product.updated_at}
-              </small>
+            <p class="timestamp">
+              Created: {product.created_at}
+              <br />
+              Updated: {product.updated_at}
             </p>
           </>
         )
@@ -386,3 +452,379 @@ const health = product ? calculateListingHealth(product) : null;
     </script>
   </body>
 </html>
+
+<style>
+  :root {
+    color-scheme: dark;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+    background: #0f1115;
+    color: #f4f0e8;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(229, 123, 53, 0.22), transparent 32rem),
+      radial-gradient(circle at bottom right, rgba(89, 132, 111, 0.22), transparent 30rem),
+      #0f1115;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .page-shell {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2rem 0 4rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    margin-bottom: 2rem;
+    color: #cfc7ba;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    color: #e57b35;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: end;
+    margin-bottom: 1.5rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 0.5rem;
+    color: #e57b35;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+
+  h2,
+  h3,
+  h4 {
+    margin-top: 0;
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+  }
+
+  .lede,
+  .muted,
+  .section-heading p,
+  .timestamp {
+    color: #cfc7ba;
+  }
+
+  .lede {
+    margin: 1rem 0 0;
+    font-size: 1.1rem;
+  }
+
+  .hero-action {
+    display: grid;
+    gap: 0.7rem;
+    justify-items: end;
+  }
+
+  button {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.9rem 1.2rem;
+    background: #e57b35;
+    color: #1a120d;
+    box-shadow: 0 18px 40px rgba(229, 123, 53, 0.22);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 900;
+  }
+
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  #launch-pack-message {
+    margin: 0;
+    color: #cfc7ba;
+    font-size: 0.9rem;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+    gap: 1rem;
+    align-items: start;
+    margin-bottom: 2rem;
+  }
+
+  .panel {
+    border: 1px solid rgba(244, 240, 232, 0.12);
+    border-radius: 1.5rem;
+    background: rgba(22, 24, 31, 0.78);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+    padding: 1.2rem;
+    backdrop-filter: blur(14px);
+  }
+
+  .health-panel {
+    grid-row: span 3;
+  }
+
+  .panel-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .panel-heading h2 {
+    margin: 0;
+    color: #f4f0e8;
+    font-size: 3rem;
+  }
+
+  .warning-box {
+    border: 1px solid rgba(229, 123, 53, 0.35);
+    border-radius: 1rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(229, 123, 53, 0.1);
+  }
+
+  .warning-box h3 {
+    margin-bottom: 0.5rem;
+  }
+
+  .check-list {
+    display: grid;
+    gap: 0.55rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .check-list li {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: 0.6rem;
+    align-items: start;
+    border: 1px solid rgba(244, 240, 232, 0.1);
+    border-radius: 0.9rem;
+    padding: 0.75rem;
+  }
+
+  .check-list span {
+    display: grid;
+    width: 1.35rem;
+    height: 1.35rem;
+    place-items: center;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+
+  .check-list p {
+    margin: 0;
+    color: #cfc7ba;
+    line-height: 1.45;
+  }
+
+  .check-list .pass span {
+    background: rgba(89, 132, 111, 0.28);
+    color: #bde8d0;
+  }
+
+  .check-list .needs-work span {
+    background: rgba(229, 123, 53, 0.22);
+    color: #ffd2b6;
+  }
+
+  .detail-list {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0;
+  }
+
+  .detail-list div {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  dt {
+    color: #92897d;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: #f4f0e8;
+    line-height: 1.45;
+  }
+
+  .launch-pack-section {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .section-heading {
+    max-width: 760px;
+  }
+
+  .section-heading h2 {
+    margin-bottom: 0.3rem;
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .launch-pack-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .launch-pack-card {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .launch-pack-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .launch-pack-header h3 {
+    margin-bottom: 0;
+    font-size: 1.5rem;
+  }
+
+  .score-pill {
+    min-width: max-content;
+    border: 1px solid rgba(229, 123, 53, 0.35);
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    color: #ffd2b6;
+    font-weight: 900;
+  }
+
+  .copy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .copy-block {
+    border: 1px solid rgba(244, 240, 232, 0.1);
+    border-radius: 1rem;
+    padding: 1rem;
+    background: rgba(15, 17, 21, 0.48);
+  }
+
+  .copy-block h4 {
+    margin-bottom: 0.5rem;
+    color: #e57b35;
+  }
+
+  .copy-block p,
+  .copy-block li,
+  pre {
+    color: #ddd4c7;
+    line-height: 1.55;
+  }
+
+  pre {
+    margin: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font: inherit;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag-list span {
+    border: 1px solid rgba(244, 240, 232, 0.14);
+    border-radius: 999px;
+    padding: 0.35rem 0.65rem;
+    background: rgba(244, 240, 232, 0.06);
+    color: #f4f0e8;
+    font-size: 0.9rem;
+  }
+
+  .timestamp {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 860px) {
+    .hero,
+    .dashboard-grid,
+    .copy-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-action {
+      justify-items: stretch;
+    }
+
+    button {
+      width: 100%;
+    }
+
+    .health-panel {
+      grid-row: auto;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .page-shell {
+      width: min(100% - 1rem, 1120px);
+      padding-top: 1rem;
+    }
+
+    .panel,
+    .copy-block {
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+
+    .launch-pack-header {
+      flex-direction: column;
+    }
+  }
+</style>
