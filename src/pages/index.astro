@@ -1,11 +1,122 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import "../styles/global.css";
+import ThemeScript from "../components/ThemeScript.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CraftForge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeScript />
+  </head>
+
+  <body>
+    <main class="page-shell">
+      <div class="top-row">
+        <p class="eyebrow">CraftForge v0.1</p>
+        <ThemeToggle />
+      </div>
+
+      <section class="hero">
+        <div>
+          <h1>From bench to listing.</h1>
+          <p class="lede">
+            CraftForge turns real maker product notes into launch packs, listing
+            checks, photo prompts, and practical next steps.
+          </p>
+        </div>
+      </section>
+
+      <section class="action-grid">
+        <a class="panel action-card" href="/products">
+          <p class="eyebrow">Product Library</p>
+          <h2>View Products</h2>
+          <p>
+            Review saved products, health scores, and generated launch packs.
+          </p>
+        </a>
+
+        <a class="panel action-card" href="/products/new">
+          <p class="eyebrow">New Product</p>
+          <h2>Add Product</h2>
+          <p>
+            Capture product details, material, price, shipping notes, care notes,
+            and photo needs.
+          </p>
+        </a>
+      </section>
+
+      <section class="panel status-panel">
+        <p class="eyebrow">Current build</p>
+        <h2>Internal Brindle workflow test</h2>
+        <p>
+          Current loop: add product → save to D1 → review listing health →
+          generate placeholder launch pack → review saved output.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
+
+<style>
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero {
+    margin-bottom: 1.5rem;
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .action-card {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.2rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .action-card:hover {
+    border-color: var(--accent-border);
+    transform: translateY(-2px);
+  }
+
+  .action-card h2 {
+    margin-bottom: 0;
+    font-size: 2rem;
+  }
+
+  .action-card p,
+  .status-panel p {
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .status-panel {
+    padding: 1.2rem;
+  }
+
+  @media (max-width: 720px) {
+    .top-row,
+    .action-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .top-row {
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
+</style>
