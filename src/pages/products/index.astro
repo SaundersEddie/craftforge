@@ -5,6 +5,7 @@ import { env } from "cloudflare:workers";
 import "../../styles/global.css";
 import ThemeScript from "../../components/ThemeScript.astro";
 import ThemeToggle from "../../components/ThemeToggle.astro";
+import { getProductStatusLabel } from "../../lib/productStatus";
 
 type ProductListItem = {
   id: number;
@@ -81,7 +82,7 @@ const products = result.results ?? [];
             {products.map((product) => (
               <article class="product-card">
                 <div class="card-topline">
-                  <span class="status-pill">{product.status}</span>
+                  <span class="status-pill">{getProductStatusLabel(product.status)}</span>
                   <span class="created-at">{product.created_at}</span>
                 </div>
 

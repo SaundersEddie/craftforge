@@ -2,6 +2,8 @@
 import "../../styles/global.css";
 import ThemeScript from "../../components/ThemeScript.astro";
 import ThemeToggle from "../../components/ThemeToggle.astro";
+
+import { PRODUCT_STATUSES, PRODUCT_STATUS_LABELS } from "../../lib/productStatus";
 ---
 
 <html lang="en">
@@ -52,6 +54,19 @@ import ThemeToggle from "../../components/ThemeToggle.astro";
               <input name="product_type" required placeholder="3D Printed Product" />
             </label>
           </div>
+
+          <label>
+            <span>Status</span>
+            <select name="status">
+              {
+                PRODUCT_STATUSES.map((status) => (
+                  <option value={status} selected={status === "draft"}>
+                    {PRODUCT_STATUS_LABELS[status]}
+                  </option>
+                ))
+              }
+            </select>
+          </label>
         </section>
 
         <section class="form-card">

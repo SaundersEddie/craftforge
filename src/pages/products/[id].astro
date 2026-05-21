@@ -6,6 +6,7 @@ import "../../styles/global.css";
 import ThemeScript from "../../components/ThemeScript.astro";
 import ThemeToggle from "../../components/ThemeToggle.astro";
 import { calculateListingHealth } from "../../lib/listingHealth";
+import { getProductStatusLabel } from "../../lib/productStatus";
 
 type Product = {
   id: number;
@@ -157,7 +158,7 @@ const health = product ? calculateListingHealth(product) : null;
                 <h1>{product.name}</h1>
                 <p class="lede">
                   {product.product_type} · {product.material ?? "Material not set"} ·{" "}
-                  {product.status}
+                  {getProductStatusLabel(product.status)}
                 </p>
               </div>
 

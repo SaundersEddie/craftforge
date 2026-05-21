@@ -230,7 +230,8 @@ button:disabled {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
@@ -240,7 +241,8 @@ textarea {
   outline: none;
 }
 
-input {
+input,
+select {
   min-height: 3rem;
   padding: 0 0.9rem;
 }
@@ -253,9 +255,14 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   border-color: var(--accent-border);
   box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+select {
+  cursor: pointer;
 }
 
 input::placeholder,

@@ -5,6 +5,10 @@ import { env } from "cloudflare:workers";
 import "../../../styles/global.css";
 import ThemeScript from "../../../components/ThemeScript.astro";
 import ThemeToggle from "../../../components/ThemeToggle.astro";
+import {
+  PRODUCT_STATUSES,
+  PRODUCT_STATUS_LABELS,
+} from "../../../lib/productStatus";
 
 type Product = {
   id: number;
@@ -117,6 +121,19 @@ const product = await env.DB
                     <span>Product type</span>
                     <input name="product_type" required value={product.product_type} />
                   </label>
+
+                <label>
+                  <span>Status</span>
+                  <select name="status">
+                    {
+                      PRODUCT_STATUSES.map((status) => (
+                        <option value={status} selected={status === product.status}>
+                          {PRODUCT_STATUS_LABELS[status]}
+                        </option>
+                      ))
+                    }
+                  </select>
+                </label>
                 </div>
               </section>
 
