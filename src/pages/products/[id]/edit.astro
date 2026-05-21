@@ -1,0 +1,429 @@
+---
+export const prerender = false;
+
+import { env } from "cloudflare:workers";
+import "../../../styles/global.css";
+import ThemeScript from "../../../components/ThemeScript.astro";
+import ThemeToggle from "../../../components/ThemeToggle.astro";
+
+type Product = {
+  id: number;
+  name: string;
+  product_type: string;
+  material: string | null;
+  dimensions: string | null;
+  production_time_minutes: number | null;
+  estimated_cost_cents: number | null;
+  target_price_cents: number | null;
+  color_options: string | null;
+  finish_options: string | null;
+  customization_rules: string | null;
+  shipping_notes: string | null;
+  care_notes: string | null;
+  photo_notes: string | null;
+  status: string;
+};
+
+function centsToDollars(value: number | null) {
+  if (value === null) return "";
+  return (value / 100).toFixed(2);
+}
+
+const id = Astro.params.id;
+
+if (!id) {
+  return Astro.redirect("/products");
+}
+
+const product = await env.DB
+  .prepare(
+    `SELECT
+      id,
+      name,
+      product_type,
+      material,
+      dimensions,
+      production_time_minutes,
+      estimated_cost_cents,
+      target_price_cents,
+      color_options,
+      finish_options,
+      customization_rules,
+      shipping_notes,
+      care_notes,
+      photo_notes,
+      status
+    FROM products
+    WHERE id = ?`
+  )
+  .bind(id)
+  .first<Product>();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{product ? `Edit ${product.name} | CraftForge` : "Product not found | CraftForge"}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeScript />
+  </head>
+
+  <body>
+    <main class="page-shell">
+      <div class="top-row">
+        <a class="back-link" href={product ? `/products/${product.id}` : "/products"}>
+          ← Back
+        </a>
+        <ThemeToggle />
+      </div>
+
+      {
+        !product ? (
+          <section class="panel not-found-panel">
+            <h1>Product not found</h1>
+            <p class="muted">That product does not exist, or it has been removed.</p>
+          </section>
+        ) : (
+          <>
+            <section class="hero">
+              <div>
+                <p class="eyebrow">Edit product</p>
+                <h1>{product.name}</h1>
+                <p class="lede">
+                  Update the saved product notes. Existing launch packs stay as snapshots;
+                  generate a new one after major edits.
+                </p>
+              </div>
+            </section>
+
+            <form id="product-form" class="form-shell" data-product-id={product.id}>
+              <section class="form-card intro-card">
+                <div>
+                  <p class="eyebrow">Required basics</p>
+                  <h2>What did you make?</h2>
+                  <p>
+                    Product name and type are required. Everything else improves health
+                    checks and launch pack quality.
+                  </p>
+                </div>
+
+                <div class="field-grid">
+                  <label>
+                    <span>Product name</span>
+                    <input name="name" required value={product.name} />
+                  </label>
+
+                  <label>
+                    <span>Product type</span>
+                    <input name="product_type" required value={product.product_type} />
+                  </label>
+                </div>
+              </section>
+
+              <section class="form-card">
+                <div class="section-heading">
+                  <p class="eyebrow">Product details</p>
+                  <h2>Material, size, and time</h2>
+                </div>
+
+                <div class="field-grid">
+                  <label>
+                    <span>Material</span>
+                    <input name="material" value={product.material ?? ""} />
+                  </label>
+
+                  <label>
+                    <span>Dimensions</span>
+                    <input name="dimensions" value={product.dimensions ?? ""} />
+                  </label>
+
+                  <label>
+                    <span>Production time minutes</span>
+                    <input
+                      name="production_time_minutes"
+                      type="number"
+                      min="0"
+                      value={product.production_time_minutes ?? ""}
+                    />
+                  </label>
+
+                  <label>
+                    <span>Estimated cost</span>
+                    <input
+                      name="estimated_cost_dollars"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={centsToDollars(product.estimated_cost_cents)}
+                    />
+                  </label>
+
+                  <label>
+                    <span>Target price</span>
+                    <input
+                      name="target_price_dollars"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={centsToDollars(product.target_price_cents)}
+                    />
+                  </label>
+                </div>
+              </section>
+
+              <section class="form-card">
+                <div class="section-heading">
+                  <p class="eyebrow">Buyer choices</p>
+                  <h2>Options and customization</h2>
+                </div>
+
+                <div class="field-grid">
+                  <label>
+                    <span>Color options</span>
+                    <textarea name="color_options">{product.color_options ?? ""}</textarea>
+                  </label>
+
+                  <label>
+                    <span>Finish options</span>
+                    <textarea name="finish_options">{product.finish_options ?? ""}</textarea>
+                  </label>
+
+                  <label class="wide-field">
+                    <span>Customization rules</span>
+                    <textarea name="customization_rules">{product.customization_rules ?? ""}</textarea>
+                  </label>
+                </div>
+              </section>
+
+              <section class="form-card">
+                <div class="section-heading">
+                  <p class="eyebrow">Listing support</p>
+                  <h2>Shipping, care, and photos</h2>
+                </div>
+
+                <div class="field-grid">
+                  <label>
+                    <span>Shipping notes</span>
+                    <textarea name="shipping_notes">{product.shipping_notes ?? ""}</textarea>
+                  </label>
+
+                  <label>
+                    <span>Care notes</span>
+                    <textarea name="care_notes">{product.care_notes ?? ""}</textarea>
+                  </label>
+
+                  <label class="wide-field">
+                    <span>Photo notes</span>
+                    <textarea name="photo_notes">{product.photo_notes ?? ""}</textarea>
+                  </label>
+                </div>
+              </section>
+
+              <section class="submit-card">
+                <div>
+                  <h2>Save changes</h2>
+                  <p>
+                    This updates the product record. Generate a new launch pack afterward
+                    if the listing notes changed.
+                  </p>
+                </div>
+
+                <button type="submit">Save changes</button>
+              </section>
+
+              <p id="message" aria-live="polite"></p>
+            </form>
+          </>
+        )
+      }
+    </main>
+
+    <script>
+      type ProductPayload = Record<string, FormDataEntryValue | null>;
+
+      type ApiResult = {
+        id?: number;
+        message?: string;
+        error?: string;
+      };
+
+      const form = document.querySelector<HTMLFormElement>("#product-form");
+      const message = document.querySelector<HTMLParagraphElement>("#message");
+
+      form?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const productId = form.dataset.productId;
+
+        if (!productId) {
+          if (message) {
+            message.textContent = "Missing product id.";
+          }
+
+          return;
+        }
+
+        const formData = new FormData(form);
+        const payload: ProductPayload = Object.fromEntries(formData.entries());
+
+        for (const key of Object.keys(payload)) {
+          if (payload[key] === "") {
+            payload[key] = null;
+          }
+        }
+
+        const estimatedCostDollars = payload.estimated_cost_dollars;
+        const targetPriceDollars = payload.target_price_dollars;
+
+        payload.estimated_cost_cents =
+          typeof estimatedCostDollars === "string"
+            ? String(Math.round(Number(estimatedCostDollars) * 100))
+            : null;
+
+        payload.target_price_cents =
+          typeof targetPriceDollars === "string"
+            ? String(Math.round(Number(targetPriceDollars) * 100))
+            : null;
+
+        delete payload.estimated_cost_dollars;
+        delete payload.target_price_dollars;
+
+        if (message) {
+          message.textContent = "Saving changes...";
+        }
+
+        const response = await fetch(`/api/products/${productId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = (await response.json()) as ApiResult;
+
+        if (!response.ok) {
+          if (message) {
+            message.textContent = result.error ?? "Something went wrong.";
+          }
+
+          return;
+        }
+
+        window.location.href = `/products/${productId}`;
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .back-link {
+    margin-bottom: 0;
+  }
+
+  .not-found-panel {
+    padding: 1.2rem;
+  }
+
+  .hero {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-shell {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .form-card,
+  .submit-card {
+    padding: 1.2rem;
+  }
+
+  .intro-card {
+    display: grid;
+    grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .intro-card p,
+  .submit-card p {
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .section-heading {
+    margin-bottom: 1rem;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  label {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  label span {
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .wide-field {
+    grid-column: 1 / -1;
+  }
+
+  .submit-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .submit-card p {
+    margin-bottom: 0;
+  }
+
+  #message {
+    min-height: 1.5rem;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  @media (max-width: 820px) {
+    .intro-card,
+    .field-grid,
+    .submit-card {
+      grid-template-columns: 1fr;
+    }
+
+    .submit-card {
+      align-items: stretch;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .top-row {
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
+</style>

@@ -162,9 +162,14 @@ const health = product ? calculateListingHealth(product) : null;
               </div>
 
               <div class="hero-action">
+                <a class="secondary-action" href={`/products/${product.id}/edit`}>
+                  Edit Product
+                </a>
+
                 <button id="generate-launch-pack" type="button" data-product-id={product.id}>
                   Generate Launch Pack
                 </button>
+
                 <p id="launch-pack-message" aria-live="polite"></p>
               </div>
             </section>
@@ -623,6 +628,27 @@ const health = product ? calculateListingHealth(product) : null;
     display: grid;
     gap: 0.7rem;
     justify-items: end;
+  }
+
+  .secondary-action {
+    display: inline-flex;
+    justify-content: center;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.9rem 1.2rem;
+    color: var(--text);
+    font-weight: 900;
+    text-decoration: none;
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      background 160ms ease;
+  }
+
+  .secondary-action:hover {
+    border-color: var(--accent-border);
+    background: var(--accent-soft);
+    transform: translateY(-2px);
   }
 
   #launch-pack-message {
