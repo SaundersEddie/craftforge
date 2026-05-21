@@ -53,7 +53,7 @@ const products = result.results ?? [];
         </div>
       </section>
 
-      <section class="summary-card">
+      <section class="summary-card product-summary">
         <div>
           <span class="summary-number">{products.length}</span>
           <span class="summary-label">
@@ -119,18 +119,6 @@ const products = result.results ?? [];
 </html>
 
 <style>
-
-  .hero-actions {
-    display: grid;
-    gap: 0.8rem;
-    justify-items: end;
-  }
-
-  @media (max-width: 720px) {
-    .hero-actions {
-      justify-items: stretch;
-    }
-  }
   .hero {
     display: flex;
     align-items: flex-end;
@@ -139,41 +127,43 @@ const products = result.results ?? [];
     margin-bottom: 1.5rem;
   }
 
-  .lede {
-    max-width: 680px;
-    margin: 1rem 0 0;
-    color: #cfc7ba;
-    font-size: 1.1rem;
-    line-height: 1.6;
+  .hero-actions {
+    display: grid;
+    gap: 0.8rem;
+    justify-items: end;
   }
 
-  .summary-card,
-  .empty-state,
-  .product-card {
-    border: 1px solid rgba(244, 240, 232, 0.12);
-    background: rgba(22, 24, 31, 0.78);
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
-    backdrop-filter: blur(14px);
+  .product-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.2rem;
   }
-
 
   .summary-number {
     display: block;
+    color: var(--text);
     font-size: 2.5rem;
     font-weight: 900;
     line-height: 1;
   }
 
   .summary-label {
-    color: #cfc7ba;
+    color: var(--muted);
     font-size: 0.9rem;
   }
 
-  .summary-card p {
+  .product-summary p {
     max-width: 620px;
     margin: 0;
-    color: #cfc7ba;
+    color: var(--muted);
     line-height: 1.5;
+  }
+
+  .empty-state {
+    padding: 2rem;
   }
 
   .empty-state h2 {
@@ -182,7 +172,7 @@ const products = result.results ?? [];
   }
 
   .empty-state p {
-    color: #cfc7ba;
+    color: var(--muted);
   }
 
   .product-grid {
@@ -191,8 +181,15 @@ const products = result.results ?? [];
     gap: 1rem;
   }
 
+  .product-card {
+    display: flex;
+    min-height: 280px;
+    flex-direction: column;
+    padding: 1.2rem;
+  }
+
   .product-card:hover {
-    border-color: rgba(229, 123, 53, 0.45);
+    border-color: var(--accent-border);
   }
 
   .card-topline {
@@ -204,17 +201,17 @@ const products = result.results ?? [];
   }
 
   .status-pill {
-    border: 1px solid rgba(229, 123, 53, 0.4);
-    border-radius: 999px;
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-pill);
     padding: 0.28rem 0.6rem;
-    color: #ffd2b6;
+    color: var(--accent);
     font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
   }
 
   .created-at {
-    color: #92897d;
+    color: var(--muted-strong);
     font-size: 0.75rem;
   }
 
@@ -226,11 +223,12 @@ const products = result.results ?? [];
   }
 
   .product-card h2 a {
+    color: var(--text);
     text-decoration: none;
   }
 
   .product-card h2 a:hover {
-    color: #e57b35;
+    color: var(--accent);
   }
 
   dl {
@@ -244,42 +242,20 @@ const products = result.results ?? [];
     gap: 0.15rem;
   }
 
-  dt {
-    color: #92897d;
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  dd {
-    margin: 0;
-    color: #f4f0e8;
-  }
-
   .card-link {
     margin-top: auto;
     align-self: flex-start;
-    border: 1px solid rgba(244, 240, 232, 0.18);
-    padding: 0.65rem 0.9rem;
-    color: #f4f0e8;
-  }
-
-  .card-link:hover {
-    border-color: rgba(229, 123, 53, 0.6);
-    background: rgba(229, 123, 53, 0.12);
   }
 
   @media (max-width: 720px) {
-    .page-shell {
-      width: min(100% - 1rem, 1120px);
-      padding: 1rem 0 2rem;
-    }
-
     .hero,
-    .summary-card {
+    .product-summary {
       align-items: stretch;
       flex-direction: column;
+    }
+
+    .hero-actions {
+      justify-items: stretch;
     }
 
     .primary-action {
