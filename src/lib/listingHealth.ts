@@ -12,6 +12,7 @@ export type ProductForHealth = {
   shipping_notes: string | null;
   care_notes: string | null;
   photo_notes: string | null;
+  status?: string | null;
 };
 
 export type ListingHealthResult = {
@@ -120,6 +121,47 @@ export function calculateListingHealth(
 
   const warnings: string[] = [];
 
+  const isReadyToList = product.status === "ready_to_list";
+
+  if (isReadyToList) {
+    const missingReadyFields: string[] = [];
+
+    if (!hasText(product.material)) {
+      missingReadyFields.push("material");
+    }
+
+    if (!hasText(product.dimensions)) {
+      missingReadyFields.push("dimensions");
+    }
+
+    if (
+      typeof product.target_price_cents !== "number" ||
+      product.target_price_cents <= 0
+    ) {
+      missingReadyFields.push("target price");
+    }
+
+    if (!hasText(product.shipping_notes)) {
+      missingReadyFields.push("shipping notes");
+    }
+
+    if (!hasText(product.care_notes)) {
+      missingReadyFields.push("care notes");
+    }
+
+    if (!hasText(product.photo_notes)) {
+      missingReadyFields.push("photo notes");
+    }
+
+    if (missingReadyFields.length > 0) {
+      warnings.push(
+        `This product is marked Ready to List, but it is missing: ${missingReadyFields.join(
+          ", "
+        )}. That is not ready. That is wishful thinking with a price tag.`
+      );
+    }
+  }
+  
   if (
     typeof product.production_time_minutes === "number" &&
     typeof product.target_price_cents === "number" &&
