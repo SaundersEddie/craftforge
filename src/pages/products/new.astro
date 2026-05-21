@@ -77,15 +77,13 @@ import ThemeToggle from "../../components/ThemeToggle.astro";
             </label>
 
             <label>
-              <span>Estimated cost cents</span>
-              <input name="estimated_cost_cents" type="number" min="0" placeholder="300" />
-              <!-- <small>Example: enter 300 for $3.00</small> -->
+              <span>Estimated Cost</span>
+              <input name="estimated_cost_dollars" type="number" min="0" step="0.01" placeholder="2.70" />
             </label>
 
             <label>
-              <span>Target price cents</span>
-              <input name="target_price_cents" type="number" min="0" placeholder="1500" />
-              <!-- <small>Example: enter 1500 for $15.00</small> -->
+              <span>Target Price</span>
+              <input name="target_price_dollars" type="number" min="0" step="0.01" placeholder="15.00" />
             </label>
           </div>
         </section>
@@ -177,6 +175,22 @@ import ThemeToggle from "../../components/ThemeToggle.astro";
             payload[key] = null;
           }
         }
+
+        const estimatedCostDollars = payload.estimated_cost_dollars;
+        const targetPriceDollars = payload.target_price_dollars;
+
+        payload.estimated_cost_cents =
+          typeof estimatedCostDollars === "string"
+            ? String(Math.round(Number(estimatedCostDollars) * 100))
+            : null;
+
+        payload.target_price_cents =
+          typeof targetPriceDollars === "string"
+            ? String(Math.round(Number(targetPriceDollars) * 100))
+            : null;
+
+        delete payload.estimated_cost_dollars;
+        delete payload.target_price_dollars;
 
         if (message) {
           message.textContent = "Saving product...";
