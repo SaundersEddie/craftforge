@@ -315,6 +315,18 @@ const health = product ? calculateListingHealth(product) : null;
                             <div>
                               <p class="eyebrow">Launch Pack #{pack.id}</p>
                               <h3>{pack.etsy_title ?? "Untitled launch pack"}</h3>
+
+                              {
+                                pack.etsy_title && (
+                                  <button
+                                    class="copy-button"
+                                    type="button"
+                                    data-copy-text={pack.etsy_title}
+                                  >
+                                    Copy Etsy title
+                                  </button>
+                                )
+                              }
                             </div>
 
                             <div class="score-pill">
@@ -325,17 +337,57 @@ const health = product ? calculateListingHealth(product) : null;
                           <p class="muted">Created: {pack.created_at}</p>
 
                           <div class="copy-block">
-                            <h4>Short description</h4>
+                            <div class="copy-block-header">
+                              <h4>Short description</h4>
+                              {
+                                pack.short_description && (
+                                  <button
+                                    class="copy-button"
+                                    type="button"
+                                    data-copy-text={pack.short_description}
+                                  >
+                                    Copy
+                                  </button>
+                                )
+                              }
+                            </div>
                             <p>{pack.short_description ?? "Not set"}</p>
                           </div>
 
                           <div class="copy-block">
-                            <h4>Long description</h4>
+                            <div class="copy-block-header">
+                              <h4>Long description</h4>
+                              {
+                                pack.long_description && (
+                                  <button
+                                    class="copy-button"
+                                    type="button"
+                                    data-copy-text={pack.long_description}
+                                  >
+                                    Copy
+                                  </button>
+                                )
+                              }
+                            </div>
                             <pre>{pack.long_description ?? "Not set"}</pre>
                           </div>
 
                           <div class="copy-block">
-                            <h4>Etsy tags</h4>
+                            <div class="copy-block-header">
+                              <h4>Etsy tags</h4>
+                              {
+                                tags.length > 0 && (
+                                  <button
+                                    class="copy-button"
+                                    type="button"
+                                    data-copy-text={tags.join(", ")}
+                                  >
+                                    Copy tags
+                                  </button>
+                                )
+                              }
+                            </div>
+
                             {tags.length === 0 ? (
                               <p class="muted">No tags saved.</p>
                             ) : (
@@ -349,19 +401,59 @@ const health = product ? calculateListingHealth(product) : null;
 
                           <div class="copy-grid">
                             <div class="copy-block">
-                              <h4>Facebook post</h4>
+                              <div class="copy-block-header">
+                                <h4>Facebook post</h4>
+                                {
+                                  pack.facebook_post && (
+                                    <button
+                                      class="copy-button"
+                                      type="button"
+                                      data-copy-text={pack.facebook_post}
+                                    >
+                                      Copy
+                                    </button>
+                                  )
+                                }
+                              </div>
                               <pre>{pack.facebook_post ?? "Not set"}</pre>
                             </div>
 
                             <div class="copy-block">
-                              <h4>Website blurb</h4>
+                              <div class="copy-block-header">
+                                <h4>Website blurb</h4>
+                                {
+                                  pack.website_blurb && (
+                                    <button
+                                      class="copy-button"
+                                      type="button"
+                                      data-copy-text={pack.website_blurb}
+                                    >
+                                      Copy
+                                    </button>
+                                  )
+                                }
+                              </div>
                               <p>{pack.website_blurb ?? "Not set"}</p>
                             </div>
                           </div>
 
                           <div class="copy-grid">
                             <div class="copy-block">
-                              <h4>Photo checklist</h4>
+                              <div class="copy-block-header">
+                                <h4>Photo checklist</h4>
+                                {
+                                  photoChecklist.length > 0 && (
+                                    <button
+                                      class="copy-button"
+                                      type="button"
+                                      data-copy-text={photoChecklist.join("\n")}
+                                    >
+                                      Copy
+                                    </button>
+                                  )
+                                }
+                              </div>
+
                               {photoChecklist.length === 0 ? (
                                 <p class="muted">No photo checklist saved.</p>
                               ) : (
@@ -374,7 +466,21 @@ const health = product ? calculateListingHealth(product) : null;
                             </div>
 
                             <div class="copy-block">
-                              <h4>Improvement notes</h4>
+                              <div class="copy-block-header">
+                                <h4>Improvement notes</h4>
+                                {
+                                  improvementNotes.length > 0 && (
+                                    <button
+                                      class="copy-button"
+                                      type="button"
+                                      data-copy-text={improvementNotes.join("\n")}
+                                    >
+                                      Copy
+                                    </button>
+                                  )
+                                }
+                              </div>
+
                               {improvementNotes.length === 0 ? (
                                 <p class="muted">No improvement notes saved.</p>
                               ) : (
@@ -453,6 +559,36 @@ const health = product ? calculateListingHealth(product) : null;
         }
 
         window.location.reload();
+      });
+
+      const copyButtons = document.querySelectorAll<HTMLButtonElement>("[data-copy-text]");
+
+      copyButtons.forEach((copyButton) => {
+        copyButton.addEventListener("click", async () => {
+          const textToCopy = copyButton.dataset.copyText;
+
+          if (!textToCopy) {
+            return;
+          }
+
+          try {
+            await navigator.clipboard.writeText(textToCopy);
+
+            const originalText = copyButton.textContent;
+            copyButton.textContent = "Copied";
+
+            window.setTimeout(() => {
+              copyButton.textContent = originalText;
+            }, 1200);
+          } catch {
+            const originalText = copyButton.textContent;
+            copyButton.textContent = "Copy failed";
+
+            window.setTimeout(() => {
+              copyButton.textContent = originalText;
+            }, 1200);
+          }
+        });
       });
     </script>
   </body>
@@ -640,7 +776,7 @@ const health = product ? calculateListingHealth(product) : null;
   }
 
   .launch-pack-header h3 {
-    margin-bottom: 0;
+    margin-bottom: 0.7rem;
     font-size: 1.5rem;
   }
 
@@ -657,8 +793,16 @@ const health = product ? calculateListingHealth(product) : null;
     background: var(--surface-soft);
   }
 
+  .copy-block-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
   .copy-block h4 {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
     color: var(--accent);
   }
 
@@ -666,6 +810,22 @@ const health = product ? calculateListingHealth(product) : null;
   .copy-block li {
     color: var(--muted);
     line-height: 1.55;
+  }
+
+  .copy-button {
+    width: auto;
+    min-width: max-content;
+    border: 1px solid var(--border);
+    padding: 0.45rem 0.7rem;
+    background: var(--surface-soft);
+    color: var(--muted);
+    box-shadow: none;
+    font-size: 0.8rem;
+  }
+
+  .copy-button:hover {
+    background: var(--accent-soft);
+    color: var(--text);
   }
 
   .tag-list {
@@ -709,13 +869,18 @@ const health = product ? calculateListingHealth(product) : null;
       width: 100%;
     }
 
+    .copy-button {
+      width: auto;
+    }
+
     .health-panel {
       grid-row: auto;
     }
   }
 
   @media (max-width: 640px) {
-    .launch-pack-header {
+    .launch-pack-header,
+    .copy-block-header {
       flex-direction: column;
     }
   }
