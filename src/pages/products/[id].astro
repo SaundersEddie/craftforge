@@ -2,6 +2,9 @@
 export const prerender = false;
 
 import { env } from "cloudflare:workers";
+import "../../styles/global.css";
+import ThemeScript from "../../components/ThemeScript.astro";
+import ThemeToggle from "../../components/ThemeToggle.astro";
 import { calculateListingHealth } from "../../lib/listingHealth";
 
 type Product = {
@@ -130,17 +133,21 @@ const health = product ? calculateListingHealth(product) : null;
     <meta charset="utf-8" />
     <title>{product ? `${product.name} | CraftForge` : "Product not found | CraftForge"}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeScript />
   </head>
 
   <body>
     <main class="page-shell">
-      <a class="back-link" href="/products">← Back to products</a>
+      <div class="top-row">
+        <a class="back-link" href="/products">← Back to products</a>
+        <ThemeToggle />
+      </div>
 
       {
         !product ? (
-          <section class="panel">
+          <section class="panel not-found-panel">
             <h1>Product not found</h1>
-            <p>That product does not exist, or it has been removed.</p>
+            <p class="muted">That product does not exist, or it has been removed.</p>
           </section>
         ) : (
           <>
@@ -165,19 +172,17 @@ const health = product ? calculateListingHealth(product) : null;
             <section class="dashboard-grid">
               <article class="panel health-panel">
                 <div class="panel-heading">
-                  <p class="eyebrow">Listing health</p>
-                  <h2>
-                    {health ? `${health.percentage}%` : "Not available"}
-                  </h2>
+                  <div>
+                    <p class="eyebrow">Listing health</p>
+                    <h2>{health ? `${health.percentage}%` : "N/A"}</h2>
+                  </div>
+
+                  {health && <span class="score-chip">{health.score}/{health.maxScore}</span>}
                 </div>
 
                 {
                   health && (
                     <>
-                      <p class="muted">
-                        Score: {health.score}/{health.maxScore}
-                      </p>
-
                       {health.warnings.length > 0 && (
                         <div class="warning-box">
                           <h3>Warnings</h3>
@@ -283,9 +288,9 @@ const health = product ? calculateListingHealth(product) : null;
               <div class="section-heading">
                 <p class="eyebrow">Generated output</p>
                 <h2>Saved launch packs</h2>
-                <p>
-                  These are saved snapshots. Later, AI generation can replace the placeholder
-                  copy without changing the display structure.
+                <p class="muted">
+                  Saved snapshots from this product’s notes. AI can come later; the display
+                  structure already knows how to hold the output.
                 </p>
               </div>
 
@@ -332,7 +337,7 @@ const health = product ? calculateListingHealth(product) : null;
                           <div class="copy-block">
                             <h4>Etsy tags</h4>
                             {tags.length === 0 ? (
-                              <p>No tags saved.</p>
+                              <p class="muted">No tags saved.</p>
                             ) : (
                               <div class="tag-list">
                                 {tags.map((tag) => (
@@ -358,7 +363,7 @@ const health = product ? calculateListingHealth(product) : null;
                             <div class="copy-block">
                               <h4>Photo checklist</h4>
                               {photoChecklist.length === 0 ? (
-                                <p>No photo checklist saved.</p>
+                                <p class="muted">No photo checklist saved.</p>
                               ) : (
                                 <ul>
                                   {photoChecklist.map((item) => (
@@ -371,7 +376,7 @@ const health = product ? calculateListingHealth(product) : null;
                             <div class="copy-block">
                               <h4>Improvement notes</h4>
                               {improvementNotes.length === 0 ? (
-                                <p>No improvement notes saved.</p>
+                                <p class="muted">No improvement notes saved.</p>
                               ) : (
                                 <ul>
                                   {improvementNotes.map((note) => (
@@ -454,95 +459,28 @@ const health = product ? calculateListingHealth(product) : null;
 </html>
 
 <style>
-  :root {
-    color-scheme: dark;
-    font-family:
-      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-      sans-serif;
-    background: #0f1115;
-    color: #f4f0e8;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background:
-      radial-gradient(circle at top left, rgba(229, 123, 53, 0.22), transparent 32rem),
-      radial-gradient(circle at bottom right, rgba(89, 132, 111, 0.22), transparent 30rem),
-      #0f1115;
-  }
-
-  a {
-    color: inherit;
-  }
-
-  .page-shell {
-    width: min(1120px, calc(100% - 2rem));
-    margin: 0 auto;
-    padding: 2rem 0 4rem;
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
   }
 
   .back-link {
-    display: inline-flex;
-    margin-bottom: 2rem;
-    color: #cfc7ba;
-    font-weight: 800;
-    text-decoration: none;
+    margin-bottom: 0;
   }
 
-  .back-link:hover {
-    color: #e57b35;
+  .not-found-panel {
+    padding: 1.2rem;
   }
 
   .hero {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 2rem;
     align-items: end;
     margin-bottom: 1.5rem;
-  }
-
-  .eyebrow {
-    margin: 0 0 0.5rem;
-    color: #e57b35;
-    font-size: 0.75rem;
-    font-weight: 900;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: clamp(2.5rem, 7vw, 5rem);
-    line-height: 0.9;
-    letter-spacing: -0.06em;
-  }
-
-  h2,
-  h3,
-  h4 {
-    margin-top: 0;
-    letter-spacing: -0.03em;
-  }
-
-  h2 {
-    font-size: 1.8rem;
-  }
-
-  .lede,
-  .muted,
-  .section-heading p,
-  .timestamp {
-    color: #cfc7ba;
-  }
-
-  .lede {
-    margin: 1rem 0 0;
-    font-size: 1.1rem;
   }
 
   .hero-action {
@@ -551,30 +489,9 @@ const health = product ? calculateListingHealth(product) : null;
     justify-items: end;
   }
 
-  button {
-    border: 0;
-    border-radius: 999px;
-    padding: 0.9rem 1.2rem;
-    background: #e57b35;
-    color: #1a120d;
-    box-shadow: 0 18px 40px rgba(229, 123, 53, 0.22);
-    cursor: pointer;
-    font: inherit;
-    font-weight: 900;
-  }
-
-  button:hover:not(:disabled) {
-    transform: translateY(-2px);
-  }
-
-  button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
   #launch-pack-message {
     margin: 0;
-    color: #cfc7ba;
+    color: var(--muted);
     font-size: 0.9rem;
   }
 
@@ -587,12 +504,7 @@ const health = product ? calculateListingHealth(product) : null;
   }
 
   .panel {
-    border: 1px solid rgba(244, 240, 232, 0.12);
-    border-radius: 1.5rem;
-    background: rgba(22, 24, 31, 0.78);
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
     padding: 1.2rem;
-    backdrop-filter: blur(14px);
   }
 
   .health-panel {
@@ -601,28 +513,44 @@ const health = product ? calculateListingHealth(product) : null;
 
   .panel-heading {
     display: flex;
-    align-items: end;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
   }
 
   .panel-heading h2 {
     margin: 0;
-    color: #f4f0e8;
+    color: var(--text);
     font-size: 3rem;
+    line-height: 1;
+  }
+
+  .score-chip,
+  .score-pill {
+    min-width: max-content;
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-pill);
+    padding: 0.45rem 0.75rem;
+    color: var(--accent);
+    font-weight: 900;
   }
 
   .warning-box {
-    border: 1px solid rgba(229, 123, 53, 0.35);
-    border-radius: 1rem;
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-md);
     margin: 1rem 0;
     padding: 1rem;
-    background: rgba(229, 123, 53, 0.1);
+    background: var(--accent-soft);
   }
 
   .warning-box h3 {
     margin-bottom: 0.5rem;
+  }
+
+  .warning-box li {
+    color: var(--text);
+    line-height: 1.45;
   }
 
   .check-list {
@@ -637,9 +565,10 @@ const health = product ? calculateListingHealth(product) : null;
     grid-template-columns: 1.6rem 1fr;
     gap: 0.6rem;
     align-items: start;
-    border: 1px solid rgba(244, 240, 232, 0.1);
+    border: 1px solid var(--border);
     border-radius: 0.9rem;
     padding: 0.75rem;
+    background: var(--surface-soft);
   }
 
   .check-list span {
@@ -647,25 +576,25 @@ const health = product ? calculateListingHealth(product) : null;
     width: 1.35rem;
     height: 1.35rem;
     place-items: center;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     font-size: 0.8rem;
     font-weight: 900;
   }
 
   .check-list p {
     margin: 0;
-    color: #cfc7ba;
+    color: var(--muted);
     line-height: 1.45;
   }
 
   .check-list .pass span {
-    background: rgba(89, 132, 111, 0.28);
-    color: #bde8d0;
+    background: var(--success-soft);
+    color: var(--success-text);
   }
 
   .check-list .needs-work span {
-    background: rgba(229, 123, 53, 0.22);
-    color: #ffd2b6;
+    background: var(--accent-soft);
+    color: var(--accent);
   }
 
   .detail-list {
@@ -677,20 +606,6 @@ const health = product ? calculateListingHealth(product) : null;
   .detail-list div {
     display: grid;
     gap: 0.2rem;
-  }
-
-  dt {
-    color: #92897d;
-    font-size: 0.75rem;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  dd {
-    margin: 0;
-    color: #f4f0e8;
-    line-height: 1.45;
   }
 
   .launch-pack-section {
@@ -729,15 +644,6 @@ const health = product ? calculateListingHealth(product) : null;
     font-size: 1.5rem;
   }
 
-  .score-pill {
-    min-width: max-content;
-    border: 1px solid rgba(229, 123, 53, 0.35);
-    border-radius: 999px;
-    padding: 0.45rem 0.75rem;
-    color: #ffd2b6;
-    font-weight: 900;
-  }
-
   .copy-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -745,30 +651,21 @@ const health = product ? calculateListingHealth(product) : null;
   }
 
   .copy-block {
-    border: 1px solid rgba(244, 240, 232, 0.1);
-    border-radius: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     padding: 1rem;
-    background: rgba(15, 17, 21, 0.48);
+    background: var(--surface-soft);
   }
 
   .copy-block h4 {
     margin-bottom: 0.5rem;
-    color: #e57b35;
+    color: var(--accent);
   }
 
   .copy-block p,
-  .copy-block li,
-  pre {
-    color: #ddd4c7;
+  .copy-block li {
+    color: var(--muted);
     line-height: 1.55;
-  }
-
-  pre {
-    margin: 0;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-    font: inherit;
   }
 
   .tag-list {
@@ -778,11 +675,11 @@ const health = product ? calculateListingHealth(product) : null;
   }
 
   .tag-list span {
-    border: 1px solid rgba(244, 240, 232, 0.14);
-    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
     padding: 0.35rem 0.65rem;
-    background: rgba(244, 240, 232, 0.06);
-    color: #f4f0e8;
+    background: var(--surface-soft);
+    color: var(--text);
     font-size: 0.9rem;
   }
 
@@ -792,10 +689,16 @@ const health = product ? calculateListingHealth(product) : null;
   }
 
   @media (max-width: 860px) {
+    .top-row,
     .hero,
     .dashboard-grid,
     .copy-grid {
       grid-template-columns: 1fr;
+    }
+
+    .top-row {
+      align-items: stretch;
+      flex-direction: column;
     }
 
     .hero-action {
@@ -812,17 +715,6 @@ const health = product ? calculateListingHealth(product) : null;
   }
 
   @media (max-width: 640px) {
-    .page-shell {
-      width: min(100% - 1rem, 1120px);
-      padding-top: 1rem;
-    }
-
-    .panel,
-    .copy-block {
-      border-radius: 1rem;
-      padding: 1rem;
-    }
-
     .launch-pack-header {
       flex-direction: column;
     }
