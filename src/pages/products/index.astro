@@ -5,7 +5,12 @@ import { env } from "cloudflare:workers";
 import "../../styles/global.css";
 import ThemeScript from "../../components/ThemeScript.astro";
 import ThemeToggle from "../../components/ThemeToggle.astro";
-import { getProductStatusLabel } from "../../lib/productStatus";
+import {
+  PRODUCT_STATUSES,
+  PRODUCT_STATUS_LABELS,
+  getProductStatusLabel,
+  type ProductStatus,
+} from "../../lib/productStatus";
 
 type ProductListItem = {
   id: number;
@@ -17,15 +22,36 @@ type ProductListItem = {
   created_at: string;
 };
 
-const result = await env.DB
-  .prepare(
-    `SELECT id, name, product_type, material, dimensions, status, created_at
-     FROM products
-     ORDER BY created_at DESC`
-  )
-  .all<ProductListItem>();
+const statusParam = Astro.url.searchParams.get("status");
+
+const selectedStatus =
+  statusParam && PRODUCT_STATUSES.includes(statusParam as ProductStatus)
+    ? (statusParam as ProductStatus)
+    : null;
+
+const result = selectedStatus
+  ? await env.DB
+      .prepare(
+        `SELECT id, name, product_type, material, dimensions, status, created_at
+         FROM products
+         WHERE status = ?
+         ORDER BY created_at DESC`
+      )
+      .bind(selectedStatus)
+      .all<ProductListItem>()
+  : await env.DB
+      .prepare(
+        `SELECT id, name, product_type, material, dimensions, status, created_at
+         FROM products
+         ORDER BY created_at DESC`
+      )
+      .all<ProductListItem>();
 
 const products = result.results ?? [];
+
+function statusUrl(status: ProductStatus | null) {
+  return status ? `/products?status=${status}` : "/products";
+}
 ---
 
 <html lang="en">
@@ -58,22 +84,49 @@ const products = result.results ?? [];
         <div>
           <span class="summary-number">{products.length}</span>
           <span class="summary-label">
-            {products.length === 1 ? "product saved" : "products saved"}
+            {products.length === 1 ? "product shown" : "products shown"}
           </span>
         </div>
 
         <p>
-          v0.1 target: add product → save product → generate launch pack → use it for
-          a real Brindle listing.
+          {selectedStatus
+            ? `Filtered by status: ${getProductStatusLabel(selectedStatus)}`
+            : "Showing all saved products."}
         </p>
+      </section>
+
+      <section class="filter-panel">
+        <p class="eyebrow">Filter by status</p>
+
+        <div class="status-filter-list">
+          <a
+            class={selectedStatus === null ? "status-filter active" : "status-filter"}
+            href={statusUrl(null)}
+          >
+            All
+          </a>
+
+          {
+            PRODUCT_STATUSES.map((status) => (
+              <a
+                class={selectedStatus === status ? "status-filter active" : "status-filter"}
+                href={statusUrl(status)}
+              >
+                {PRODUCT_STATUS_LABELS[status]}
+              </a>
+            ))
+          }
+        </div>
       </section>
 
       {
         products.length === 0 ? (
           <section class="empty-state">
-            <h2>No products saved yet</h2>
+            <h2>No products found</h2>
             <p>
-              Add the first real product and start building the launch workflow.
+              {selectedStatus
+                ? "No products currently match this status."
+                : "Add the first real product and start building the launch workflow."}
             </p>
             <a class="primary-action" href="/products/new">Add Product</a>
           </section>
@@ -139,7 +192,7 @@ const products = result.results ?? [];
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     padding: 1rem 1.2rem;
   }
 
@@ -161,6 +214,37 @@ const products = result.results ?? [];
     margin: 0;
     color: var(--muted);
     line-height: 1.5;
+  }
+
+  .filter-panel {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--surface-soft);
+  }
+
+  .status-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .status-filter {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.45rem 0.75rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-decoration: none;
+  }
+
+  .status-filter:hover,
+  .status-filter.active {
+    border-color: var(--accent-border);
+    background: var(--accent-soft);
+    color: var(--text);
   }
 
   .empty-state {
