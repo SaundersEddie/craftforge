@@ -20,6 +20,7 @@ type ProductListItem = {
   dimensions: string | null;
   status: string;
   created_at: string;
+  launch_pack_count: number;
 };
 
 const statusParam = Astro.url.searchParams.get("status");
@@ -29,21 +30,35 @@ const selectedStatus =
     ? (statusParam as ProductStatus)
     : null;
 
+const baseSelect = `
+  SELECT
+    products.id,
+    products.name,
+    products.product_type,
+    products.material,
+    products.dimensions,
+    products.status,
+    products.created_at,
+    COUNT(launch_packs.id) AS launch_pack_count
+  FROM products
+  LEFT JOIN launch_packs ON launch_packs.product_id = products.id
+`;
+
 const result = selectedStatus
   ? await env.DB
       .prepare(
-        `SELECT id, name, product_type, material, dimensions, status, created_at
-         FROM products
-         WHERE status = ?
-         ORDER BY created_at DESC`
+        `${baseSelect}
+         WHERE products.status = ?
+         GROUP BY products.id
+         ORDER BY products.created_at DESC`
       )
       .bind(selectedStatus)
       .all<ProductListItem>()
   : await env.DB
       .prepare(
-        `SELECT id, name, product_type, material, dimensions, status, created_at
-         FROM products
-         ORDER BY created_at DESC`
+        `${baseSelect}
+         GROUP BY products.id
+         ORDER BY products.created_at DESC`
       )
       .all<ProductListItem>();
 
@@ -159,6 +174,15 @@ function statusUrl(status: ProductStatus | null) {
                     <dd>{product.dimensions ?? "Not set"}</dd>
                   </div>
                 </dl>
+
+                <div>
+                  <dt>Launch packs</dt>
+                  <dd>
+                    {product.launch_pack_count === 1
+                      ? "1 saved"
+                      : `${product.launch_pack_count} saved`}
+                  </dd>
+                </div>
 
                 <a class="card-link" href={`/products/${product.id}`}>
                   View product →
