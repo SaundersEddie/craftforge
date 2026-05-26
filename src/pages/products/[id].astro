@@ -162,17 +162,42 @@ const health = product ? calculateListingHealth(product) : null;
                 </p>
               </div>
 
-              <div class="hero-action">
-                <a class="secondary-action" href={`/products/${product.id}/edit`}>
-                  Edit Product
-                </a>
+           <div class="hero-action">
+            <a class="secondary-action" href={`/products/${product.id}/edit`}>
+              Edit Product
+            </a>
 
-                <button id="generate-launch-pack" type="button" data-product-id={product.id}>
-                  Generate Launch Pack
+            <button id="generate-launch-pack" type="button" data-product-id={product.id}>
+              Generate Launch Pack
+            </button>
+
+            {
+              product.status === "archived" ? (
+                <button
+                  id="restore-product"
+                  class="status-action"
+                  type="button"
+                  data-product-id={product.id}
+                  data-next-status="draft"
+                >
+                  Restore to Draft
                 </button>
+              ) : (
+                <button
+                  id="archive-product"
+                  class="status-action danger-action"
+                  type="button"
+                  data-product-id={product.id}
+                  data-next-status="archived"
+                >
+                  Archive Product
+                </button>
+              )
+            }
 
-                <p id="launch-pack-message" aria-live="polite"></p>
-              </div>
+            <p id="launch-pack-message" aria-live="polite"></p>
+            <p id="status-message" aria-live="polite"></p>
+          </div>
             </section>
 
             <section class="dashboard-grid">
@@ -596,6 +621,68 @@ const health = product ? calculateListingHealth(product) : null;
           }
         });
       });
+
+      const statusActionButton = document.querySelector<HTMLButtonElement>(".status-action");
+      const statusMessage = document.querySelector<HTMLParagraphElement>("#status-message");
+
+      statusActionButton?.addEventListener("click", async () => {
+        const productId = statusActionButton.dataset.productId;
+        const nextStatus = statusActionButton.dataset.nextStatus;
+
+        if (!productId || !nextStatus) {
+          if (statusMessage) {
+            statusMessage.textContent = "Missing product status details.";
+          }
+
+          return;
+        }
+
+        const isArchiving = nextStatus === "archived";
+
+        if (isArchiving) {
+          const confirmed = window.confirm(
+            "Archive this product? It will be hidden from normal workflow filters but not deleted."
+          );
+
+          if (!confirmed) {
+            return;
+          }
+        }
+
+        statusActionButton.disabled = true;
+
+        if (statusMessage) {
+          statusMessage.textContent = isArchiving
+            ? "Archiving product..."
+            : "Restoring product...";
+        }
+
+        const response = await fetch(`/api/products/${productId}/status`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: nextStatus,
+          }),
+        });
+
+        const result = (await response.json()) as {
+          error?: string;
+          message?: string;
+        };
+
+        if (!response.ok) {
+          if (statusMessage) {
+            statusMessage.textContent = result.error ?? "Something went wrong.";
+          }
+
+          statusActionButton.disabled = false;
+          return;
+        }
+
+        window.location.reload();
+      });
     </script>
   </body>
 </html>
@@ -630,6 +717,27 @@ const health = product ? calculateListingHealth(product) : null;
     gap: 0.7rem;
     justify-items: end;
   }
+
+  .status-action {
+  box-shadow: none;
+  }
+
+  .danger-action {
+    border: 1px solid var(--accent-border);
+    background: var(--surface-soft);
+    color: var(--accent);
+  }
+
+  .danger-action:hover {
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+
+#status-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
 
   .secondary-action {
     display: inline-flex;
